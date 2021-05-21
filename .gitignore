@@ -2,3 +2,8 @@
 study
 *.csv
 yolo
+*.zip
+res
+arena_data
+*.swp
+__pycache__
