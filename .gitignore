@@ -7,3 +7,5 @@ res
 arena_data
 *.swp
 __pycache__
+*.jpeg
+saved_model
