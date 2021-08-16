@@ -3,6 +3,7 @@ import './App.css';
 import CanvasDraw from 'react-canvas-draw';
 import { useRef, useState, useEffect } from 'react';
 import { Container, Button, Grid } from '@material-ui/core';
+import axios from 'axios'
 
 function useWindowSize() {
   // Initialize state with undefined width/height so server and client renders match
@@ -39,8 +40,9 @@ function useWindowSize() {
 
 function App() {
   const width = useWindowSize().width;
-  console.log(width);
+  // console.log(width);
   const canvasRef = useRef();
+  const [num, setNum] = useState(null);
   const canvasConfig = {
     onChange: null,
     loadTimeOffset: 5,
@@ -60,11 +62,38 @@ function App() {
   };
 
   function handleChangeData(e) {
-    console.log(e);
+    var canvas = canvasRef.current.canvas.drawing;
+    var img = new Image();
+    img.src = canvasRef.current.canvas.drawing.toDataURL();
+    img.onload = function () {
+      var oc = document.createElement('canvas'),
+          octx = oc.getContext('2d');
+      oc.width = 28;
+      oc.height = 28;
+      octx.drawImage(img, 0, 0, oc.width, oc.height);
+  
+      const data = octx.getImageData(0, 0, oc.width, oc.height).data.filter((_, index) => index % 4 == 3);
+      axios({
+        method: "post",
+        url: "http://127.0.0.1:8011",
+        data: data,
+        headers: {
+          "Content-type": "application/json; charset=utf-8",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setNum(response.data)
+      })
+      .catch((response) => {
+        console.log("Error!");
+      });
+    }
   }
 
   function handleClearClick(e) {
-    console.log(e);
+    canvasRef.current.clear();
+    setNum(null)
   }
 
   return (
@@ -87,10 +116,18 @@ function App() {
         <Container maxWidth="sm">
           <CanvasDraw {...canvasConfig} ref={canvasRef} onChange={ handleChangeData }/>
           <div className="flex justify-between m-auto" style={{ width: canvasConfig.canvasWidth }}>
-            <Button size="medium" variant="contained" color="secondary" onClick={ handleClearClick }>
-              Clear
-            </Button>
+          <Grid container className="my-16" justify="space-between">
+            <Grid item >
+              <Button size="medium" variant="contained" color="secondary" onClick={ handleClearClick }>
+                Clear
+              </Button>
+            </Grid>
+            <Grid item >
+              {num ? num : "입력하세요"}
+            </Grid>
+          </Grid>
           </div>
+          <canvas id="canvasOutput" width="28" height="28"></canvas>
         </Container>
       </main>
     </div>
