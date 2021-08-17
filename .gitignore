@@ -9,3 +9,5 @@ arena_data
 __pycache__
 *.jpeg
 saved_model
+
+*.gz
