@@ -7,6 +7,9 @@ class activate_function():
 
   def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+  def sigmoid_grad(self, x):
+      return (1.0 - self.sigmoid(x)) * self.sigmoid(x)
     
   def relu(x):
     return np.maximum(0, x)
